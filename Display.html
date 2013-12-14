@@ -1,0 +1,51 @@
+<html>
+    <head>
+        <script type="text/javascript" src="src/GameOfLife.js"></script>
+        <script type="text/javascript" src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
+        <style>
+            .grid-display {
+                line-height: 0;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="grid-display"></div>
+    </body>
+
+    <script type="text/javascript">
+
+        var grid = GridCreator.create(20, 20, [
+            { x: 2, y: 1 },
+            { x: 5, y: 1 },
+            { x: 6, y: 2 },
+            { x: 6, y: 3 },
+            { x: 6, y: 4 },
+            { x: 5, y: 4 },
+            { x: 4, y: 4 },
+            { x: 3, y: 4 },
+            { x: 2, y: 3 },
+        ]);
+
+        renderGrid = function () {
+            var gridAsText = '';
+            for (var y = 0; y < grid.height; ++y) {
+                gridAsText += '<p>';
+                for (var x = 0; x < grid.width; ++x) {
+                    var cell = grid.cells[cellIndexFromCoordinates(x,y,grid.height)];
+                    gridAsText += cell ? 'X' : '&nbsp';
+                }
+                gridAsText += '</p>';
+            }
+
+            $('.grid-display').html(gridAsText);
+        }
+
+        document.body.onkeydown = function (event) {
+            grid = GameOfLife.step(grid);
+            renderGrid();
+        }
+
+        renderGrid();
+
+    </script>
+</html>
