@@ -93,5 +93,74 @@ var GameOfLife = {
 
             return GameOfLife.GridCreator.createFromCells(result);
         }
+    },
+
+    start: function(sizeInCells, cellSize) {
+    
+        var grid = GameOfLife.GridCreator.create(sizeInCells, sizeInCells, [
+
+            { x: 2, y: 11 },
+            { x: 5, y: 11 },
+            { x: 6, y: 12 },
+            { x: 6, y: 13 },
+            { x: 6, y: 14 },
+            { x: 5, y: 14 },
+            { x: 4, y: 14 },
+            { x: 3, y: 14 },
+            { x: 2, y: 13 },
+
+            { x: 12, y: 14 },
+            { x: 15, y: 14 },
+            { x: 16, y: 12 },
+            { x: 16, y: 12 },
+            { x: 16, y: 11 },
+            { x: 15, y: 11 },
+            { x: 14, y: 11 },
+            { x: 13, y: 11 },
+            { x: 12, y: 12 }
+        ]);
+
+        var lastTimeUpdated = null;
+
+        update = function () {
+            var now = new Date().getTime();
+            
+            requestAnimationFrame(update);
+
+            if (lastTimeUpdated != null && now - lastTimeUpdated < 50) {
+                return;
+            }
+
+            lastTimeUpdated = now;
+            
+            grid = GameOfLife.Simulation.step(grid);
+
+            var canvas = document.getElementById('gol-display');
+            canvas.width = canvas.height = sizeInCells * cellSize;
+
+            var context = canvas.getContext('2d');
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            
+            var cellsToDraw = [];
+            for (var y = 0; y < grid.height; ++y) {
+                for (var x = 0; x < grid.width; ++x) {
+                    var cellValue = grid.cells[GameOfLife.cellIndexFromCoordinates(x, y, grid.height)];
+                    if (cellValue == 0)
+                        continue;
+
+                    cellsToDraw.push({ x: x, y: y });
+                }
+            }
+
+            context.fillStyle = 'black';
+            context.beginPath();
+            for (var index = 0; index < cellsToDraw.length; ++index) {
+                var cell = cellsToDraw[index];
+                context.fillRect(cell.x * cellSize, cell.y * cellSize, cellSize, cellSize);
+            }
+        }
+
+        update();
+
     }
 }
