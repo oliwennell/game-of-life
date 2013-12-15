@@ -3,51 +3,85 @@
         <script type="text/javascript" src="src/GameOfLife.js"></script>
         <script type="text/javascript" src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
         <style>
-            .grid-display {
-                line-height: 0;
+            #display {
                 border: 1px solid black;
             }
         </style>
     </head>
     <body>
-        <div class="grid-display"></div>
+        <canvas id="display">
+        </canvas>
     </body>
 
     <script type="text/javascript">
 
-        var size = 40;
-        var grid = GameOfLife.GridCreator.create(size, size, [
-            { x: 2, y: 1 },
-            { x: 5, y: 1 },
-            { x: 6, y: 2 },
-            { x: 6, y: 3 },
-            { x: 6, y: 4 },
-            { x: 5, y: 4 },
-            { x: 4, y: 4 },
-            { x: 3, y: 4 },
-            { x: 2, y: 3 },
+        var sizeInCells = 100;
+        var cellSize = 5;
+
+        var grid = GameOfLife.GridCreator.create(sizeInCells, sizeInCells, [
+
+            { x: 2, y: 11 },
+            { x: 5, y: 11 },
+            { x: 6, y: 12 },
+            { x: 6, y: 13 },
+            { x: 6, y: 14 },
+            { x: 5, y: 14 },
+            { x: 4, y: 14 },
+            { x: 3, y: 14 },
+            { x: 2, y: 13 },
+
+            { x: 12, y: 14 },
+            { x: 15, y: 14 },
+            { x: 16, y: 12 },
+            { x: 16, y: 12 },
+            { x: 16, y: 11 },
+            { x: 15, y: 11 },
+            { x: 14, y: 11 },
+            { x: 13, y: 11 },
+            { x: 12, y: 12 }
         ]);
 
-        renderGrid = function () {
-            var gridAsText = '';
-            for (var y = 0; y < grid.height; ++y) {
-                gridAsText += '<p>';
-                for (var x = 0; x < grid.width; ++x) {
-                    var cell = grid.cells[GameOfLife.cellIndexFromCoordinates(x,y,grid.height)];
-                    gridAsText += cell;
-                }
-                gridAsText += '</p>';
+        var lastTimeUpdated = null;
+
+        update = function () {
+            var now = new Date().getTime();
+            
+            requestAnimationFrame(update);
+
+            if (lastTimeUpdated != null && now - lastTimeUpdated < 50) {
+                return;
             }
 
-            $('.grid-display').html(gridAsText);
-        }
-
-        document.body.onkeydown = function (event) {
+            lastTimeUpdated = now;
+            
             grid = GameOfLife.Simulation.step(grid);
-            renderGrid();
+
+            var canvas = document.getElementById('display');
+            canvas.width = canvas.height = sizeInCells * cellSize;
+
+            var context = canvas.getContext('2d');
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            
+            var cellsToDraw = [];
+            for (var y = 0; y < grid.height; ++y) {
+                for (var x = 0; x < grid.width; ++x) {
+                    var cellValue = grid.cells[GameOfLife.cellIndexFromCoordinates(x, y, grid.height)];
+                    if (cellValue == 0)
+                        continue;
+
+                    cellsToDraw.push({ x: x, y: y });
+                }
+            }
+
+            context.fillStyle = 'black';
+            context.beginPath();
+            for (var index = 0; index < cellsToDraw.length; ++index) {
+                var cell = cellsToDraw[index];
+                context.fillRect(cell.x * cellSize, cell.y * cellSize, cellSize, cellSize);
+            }
         }
 
-        renderGrid();
+        update();
 
     </script>
 </html>
