@@ -1,9 +1,16 @@
 <html>
     <head>
         <script type="text/javascript" src="src/GameOfLife.js"></script>
+        <script type="text/javascript" src="src/GameOfLife.Display.js"></script>
+
         <style>
             #gol-display {
+                top: 10px;
+                left: 10px;
                 border: 1px solid black;
+                width: 400px;
+                height: 400px;
+                position: relative;
             }
         </style>
     </head>
@@ -13,6 +20,6 @@
     </body>
 
     <script type="text/javascript">
-        GameOfLife.start(100, 5);
+        GameOfLifeDisplay.init(document.getElementById('gol-display'));
     </script>
 </html>
