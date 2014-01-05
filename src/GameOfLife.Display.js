@@ -3,6 +3,8 @@ var GameOfLifeDisplay = GameOfLifeDisplay || {
 
     init: function(canvasElement) {
     
+        var canvas = canvasElement;
+            
         var cellSize = 5;
         var widthInCells = Math.floor(canvasElement.width / cellSize);
 
@@ -14,8 +16,7 @@ var GameOfLifeDisplay = GameOfLifeDisplay || {
         
         render = function () {
 
-            var canvas = document.getElementById('gol-display');
-            canvas.width = canvas.height = widthInCells * cellSize;
+            //canvas.width = canvas.height = widthInCells * cellSize;
 
             var context = canvas.getContext('2d');
             context.clearRect(0, 0, canvas.width, canvas.height);
@@ -61,9 +62,9 @@ var GameOfLifeDisplay = GameOfLifeDisplay || {
         }
 
         createInitialLiveCells = function () {
-            for (var i = 0; i < 59; ++i) {
+            for (var i = 0; i < widthInCells; ++i) {
                 liveCells.push({ x: i, y: i });
-                liveCells.push({ x: 59 - i, y: i });
+                liveCells.push({ x: widthInCells - 1 - i, y: i });
             }
 
             grid = GameOfLife.GridCreator.create(widthInCells, widthInCells, liveCells);
