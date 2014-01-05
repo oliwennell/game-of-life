@@ -5,7 +5,7 @@ var GameOfLifeDisplay = GameOfLifeDisplay || {
     
         var canvas = canvasElement;
             
-        var cellSize = 5;
+        var cellSize = 2;
         var widthInCells = Math.floor(canvasElement.width / cellSize);
 
         var liveCells = [];
@@ -15,8 +15,6 @@ var GameOfLifeDisplay = GameOfLifeDisplay || {
         var autoStep = false;
         
         render = function () {
-
-            //canvas.width = canvas.height = widthInCells * cellSize;
 
             var context = canvas.getContext('2d');
             context.clearRect(0, 0, canvas.width, canvas.height);
@@ -42,6 +40,9 @@ var GameOfLifeDisplay = GameOfLifeDisplay || {
                     cellSize,
                     cellSize);
             }
+
+            context.font = "10px Arial";
+            context.fillText(autoStep ? "Click again to pause" : "Click anywhere to start", 5, 10);
         }
 
         update = function () {
@@ -49,7 +50,7 @@ var GameOfLifeDisplay = GameOfLifeDisplay || {
             
             requestAnimationFrame(update);
 
-            if (lastTimeUpdated != null && now - lastTimeUpdated < 50) {
+            if (lastTimeUpdated != null && now - lastTimeUpdated < 30) {
                 return;
             }
 
