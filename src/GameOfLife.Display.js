@@ -1,132 +1,117 @@
 
+(function() {
 
-    (function() {
-
-        var q/*cellIndexFromCoordinates*/ = function (x, y, height) {
-            return y + x * height;
+    var cellCoordinatesFromIndex = function(grid, index) {
+        var _y = Math.floor(index / grid.w);
+        var _x = index - (_y * grid.w);
+        return {
+            y: _y,
+            x: _x
         };
+    };
 
-        var create = function (width, liveCells) {
-            var cells = [];
-            var height = width;
-            for (var y = 0; y < height; ++y) {
-                for (var x = 0; x < width; ++x) {
-                    cells[q/*cellIndexFromCoordinates*/(x, y, height)] = 0;
-                }
-            }
+    var isCellAlive = function (x, y, grid) {
+        return grid.c[y + x * grid.h] == 1
+    }
 
-            for (var index = 0; index < liveCells.length; ++index) {
-                var liveCell = liveCells[index];
-                cells[q/*cellIndexFromCoordinates*/(liveCell.x, liveCell.y, height)] = 1;
-            }
+    var getNumLiveNeighbours = function (x, y, grid) {
+        var neighbours = [
+            [x - 1, y - 1], [x, y - 1], [x + 1, y - 1],
+            [x - 1, y], [x + 1, y],
+            [x - 1, y + 1], [x, y + 1], [x + 1, y + 1]
+        ];
 
-            return new Grid(cells, width);
-        };
+        var numLiveNeighbours = 0;
 
-        var Grid = function(cells, width) {
-            var self = this;
+        for (var index = 0; index < neighbours.length; ++index) {
+            var neighbour = neighbours[index];
 
-            self.a/*cells*/ = cells;
-        
-            self.w = width;
-            self.h = width;
+            if (neighbour[0] >= 0 && neighbour[0] < grid.w)
+                if (neighbour[1] >=0 && neighbour[1] < grid.h)
+                    if (isCellAlive(neighbour[0], neighbour[1], grid))
+                        numLiveNeighbours++;
+        }
 
-            self.e/*isAlive*/ = function (x, y) {
-                return self.a/*cells*/[q/*cellIndexFromCoordinates*/(x, y, self.h)] == 1;
-            }
+        return numLiveNeighbours;
+    };
 
-            self.n/*cellIndexFromCoordinates*/ = function (x, y) {
-                var neighbours = [
-                    [x - 1, y - 1], [x, y - 1], [x + 1, y - 1],
-                    [x - 1, y], [x + 1, y],
-                    [x - 1, y + 1], [x, y + 1], [x + 1, y + 1]
-                ];
+    var step = function(inputGrid) {
+        var result = inputGrid.c.slice(0);
 
-                var numLiveNeighbours = 0;
+        for (var i=0; i<inputGrid.c.length; ++i) {
+            var cell = cellCoordinatesFromIndex(inputGrid, i);
 
-                for (var index = 0; index < neighbours.length; ++index) {
-                    var neighbour = neighbours[index];
-
-                    if (neighbour[0] >= 0 && neighbour[0] < self.w)
-                        if (neighbour[1] >=0 && neighbour[1] < self.h)
-                            if (self.e/*isAlive*/(neighbour[0], neighbour[1]))
-                                numLiveNeighbours++;
-                }
-
-                return numLiveNeighbours;
-            }
-        };
-        
-
-        var s/*step*/ = function(inputGrid) {
-            var result = inputGrid.a/*cells*/.slice(0);
-
-            for (var x = 0; x < inputGrid.w; ++x) {
-
-                for (var y = 0; y < inputGrid.h; ++y) {
-
-                    var isAlive = inputGrid.e/*isAlive*/(x, y);
-                    var numLiveNeighbours = inputGrid.n/*cellIndexFromCoordinates*/(x, y);
-                    var isAliveAfterStep;
-
-                    if (isAlive) {
-                        isAliveAfterStep = numLiveNeighbours == 2 || numLiveNeighbours == 3;
-                    }
-                    else {
-                        isAliveAfterStep = numLiveNeighbours == 3;
-                    }
-
-                    result[q/*cellIndexFromCoordinates*/(x, y, inputGrid.h)] = isAliveAfterStep ? 1 : 0;
-                }
-            }
-
-            return new Grid(result, inputGrid.w);
-        };
-
-        var canvas = document.getElementById('gol-display');
-        var context = canvas.getContext('2d');
-        context.fillStyle = 'black';
+            var isAlive = isCellAlive(cell.x, cell.y, inputGrid);
             
-        var widthInCells = /*Math.floor(canvas.width / 2)*/200;
+            var numLiveNeighbours = getNumLiveNeighbours(cell.x, cell.y, inputGrid);
+            var isAliveAfterStep;
 
-        var liveCells = [];
-        var grid = null;
+            if (isAlive) {
+                isAliveAfterStep = numLiveNeighbours == 2 || numLiveNeighbours == 3;
+            }
+            else {
+                isAliveAfterStep = numLiveNeighbours == 3;
+            }
 
-        var lastTimeUpdated = 0;
+            result[i] = isAliveAfterStep ? 1 : 0;
+        }
 
-        u/*update*/ = function () {
-            var now = new Date().getTime();
+        return {
+            c: result,
+            w: inputGrid.w,
+            h: inputGrid.w
+        };
+    };
+
+    var canvas = document.getElementById('gol');
+    var context = canvas.getContext('2d');
+      
+    var widthInCells = /*Math.floor(canvas.width / 2)*/200;
+
+    var liveCells = [];
+    var grid = null;
+
+    var lastTimeUpdated = 0;
+
+    var update = function () {
+        var now = new Date().getTime();
+        
+        requestAnimationFrame(update);
+
+        if (now - lastTimeUpdated >= 30)
+        {
+            lastTimeUpdated = now;
+            grid = step(grid);
             
-            requestAnimationFrame(u/*update*/);
-
-            if (now - lastTimeUpdated >= 30)
-            {
-                lastTimeUpdated = now;
-                grid = s/*step*/(grid);
-                
-                context.clearRect(0, 0, canvas.width, canvas.height);
-
-                var cellsToDraw = [];
-                for (var y = 0; y < grid.h; ++y) {
-                    for (var x = 0; x < grid.w; ++x) {
-                        var cellValue = grid.a/*cells*/[q/*cellIndexFromCoordinates*/(x, y, grid.h)];
-                        if (cellValue != 0)
-                            cellsToDraw.push({ x: x, y: y });
-                    }
-                }
-
-                context.beginPath();
-                for (var i = 0; i < cellsToDraw.length; ++i) {
-                    var cell = cellsToDraw[i];
-                    context.fillRect(cell.x *2, cell.y * 2, 2, 2);
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            context.beginPath();
+            
+            for (var j=0; j<grid.c.length; ++j) {
+                var cellValue = grid.c[j];
+                if (cellValue != 0) {
+                    var cell = cellCoordinatesFromIndex(grid, j);
+                    context.fillRect(cell.x*2, cell.y*2, 2, 2);  
                 }
             }
         }
+    }
 
-        for (var i = 0; i < widthInCells; ++i) {
-            liveCells.push({ x: i, y: i });
-            liveCells.push({ x: widthInCells - 1 - i, y: i });
-        }
-        grid = create(widthInCells, liveCells);
-        u/*update*/();
-    })();
+
+    var i;
+    var cells = new Array(widthInCells*widthInCells);
+    for (i=0; i<cells.length; ++i) {
+        cells[i] = 0;
+    }
+    for (i=0; i<widthInCells; ++i) {
+        cells[i*(widthInCells+1)] = 1;
+        cells[(i+1)*(widthInCells-1)] = 1;
+    }
+    grid = { 
+        c: cells,
+        w: widthInCells, 
+        h: widthInCells 
+    };
+
+    update();
+
+})();
