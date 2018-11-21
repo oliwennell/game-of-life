@@ -5,7 +5,7 @@ var GameOfLifeDisplay = GameOfLifeDisplay || {
     
         var canvas = canvasElement;
             
-        var cellSize = 2;
+        var cellSize = 10;
         var widthInCells = Math.floor(canvasElement.width / cellSize);
 
         var liveCells = [];
@@ -26,7 +26,7 @@ var GameOfLifeDisplay = GameOfLifeDisplay || {
                     if (cellValue == 0)
                         continue;
 
-                    cellsToDraw.push({ x: x, y: y });
+                    cellsToDraw.push({ x: x, y: grid.height-y });
                 }
             }
 
@@ -50,7 +50,7 @@ var GameOfLifeDisplay = GameOfLifeDisplay || {
             
             requestAnimationFrame(update);
 
-            if (lastTimeUpdated != null && now - lastTimeUpdated < 30) {
+            if (lastTimeUpdated != null && now - lastTimeUpdated < 100) {
                 return;
             }
 

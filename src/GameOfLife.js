@@ -19,10 +19,46 @@ var GameOfLife = GameOfLife || {
                 }
             }
 
-            for (var index = 0; index < liveCells.length; ++index) {
-                var liveCell = liveCells[index];
-                cells[GameOfLife.cellIndexFromCoordinates(liveCell.x, liveCell.y, height)] = 1;
-            }
+            let cellCoordinates = [
+                    [2, 4],
+                    [2, 5],
+                    [2, 6],
+                    [3, 1],
+                    [3, 2],
+                    [3, 3],
+                    [3, 4],
+                    [3, 6],
+                    [4, 4],
+                    [4, 5],
+                    [4, 6],
+                    
+                    [5, 8],
+                    [6, 7],
+                    [6, 8],
+                    [6, 9],
+                    [7, 7],
+                    [7, 8],
+                    [7, 9],
+                    
+                    [8,11],
+                    [8,13],
+                    [9,11],
+                    [10,11],
+                    [11,11],
+                    [11,13],
+                    
+                    [13,15],
+                    [13,16],
+                    [13,19],
+                    [14,14],
+                    [14,17],
+                    [15,15],
+                    [15,16],
+                    [15,19]
+            ];
+            cellCoordinates.forEach(c => {
+                cells[GameOfLife.cellIndexFromCoordinates(c[0], c[1], height)] = 1
+            });
 
             return new GameOfLife.Grid(cells);
         }
